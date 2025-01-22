@@ -1,88 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-     <meta charset="UTF-8">
-     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     <title>QR Code Scanner</title>
-     <style>
-          body {
-               font-family: Arial, sans-serif;
-               text-align: center;
-          }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR Code Scanner</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
 
-          .container {
-               position: relative;
-               display: inline-block;
-          }
+    .container {
+      position: relative;
+      display: inline-block;
+    }
 
-          #output {
-               margin-top: 20px;
-               font-size: 1.2em;
-               color: green;
-          }
+    #output {
+      margin-top: 20px;
+      font-size: 1.2em;
+      color: green;
+    }
 
-          video {
-               width: 100%;
-               height: auto;
-               border: 2px solid #ccc;
-               border-radius: 8px;
-          }
-     </style>
+    video {
+      width: 100%;
+      height: auto;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+    }
+  </style>
 </head>
-
 <body>
-     <h1>QR Code Scanner</h1>
-     <div class="container">
-          <!-- Video element for displaying camera feed -->
-          <video id="video" width="100%" height="auto" autoplay></video>
-          <!-- Hidden canvas for capturing image data from the video feed -->
-          <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
-          <!-- Output for displaying scanned QR code data -->
-          <div id="output"></div>
-     </div>
+  <h1>QR Code Scanner</h1>
+  <div class="container">
+    <!-- Video element for displaying camera feed -->
+    <video id="video" width="100%" height="auto" autoplay></video>
+    <!-- Hidden canvas for capturing image data from the video feed -->
+    <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
+    <!-- Output for displaying scanned QR code data -->
+    <div id="output"></div>
+  </div>
 
-     <!-- jsQR Library -->
-     <script src="https://unpkg.com/jsqr/dist/jsQR.js"></script>
-     <script>
-          // Get the video and canvas elements
-          const video = document.getElementById('video');
-          const canvas = document.getElementById('canvas');
-          const ctx = canvas.getContext('2d');
-          const output = document.getElementById('output');
+  <!-- jsQR Library -->
+  <script src="https://unpkg.com/jsqr/dist/jsQR.js"></script>
+  <script>
+    // Get the video and canvas elements
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const output = document.getElementById('output');
 
-          // Start video stream from the camera
-          navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } })
-               .then(stream => {
-                    video.srcObject = stream;
-                    video.setAttribute('playsinline', true); // required to play video inline on iPhone
-                    video.play();
-                    requestAnimationFrame(scanQRCode);
-               })
-               .catch(err => {
-                    console.error('Error accessing the camera: ', err);
-               });
+    // Start video stream from the camera
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+      .then(stream => {
+        video.srcObject = stream;
+        video.setAttribute('playsinline', true); // required to play video inline on iPhone
+        video.play();
+        requestAnimationFrame(scanQRCode);
+      })
+      .catch(err => {
+        console.error('Error accessing the camera: ', err);
+      });
 
-          // Function to scan QR code
-          function scanQRCode() {
-               // Draw the current frame from the video to the canvas
-               ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    // Function to scan QR code
+    function scanQRCode() {
+      // Draw the current frame from the video to the canvas
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-               // Get the image data from the canvas
-               const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-               const code = jsQR(imageData.data, canvas.width, canvas.height);
+      // Get the image data from the canvas
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const code = jsQR(imageData.data, canvas.width, canvas.height);
 
-               // If a QR code is found, display its data
-               if (code) {
-                    output.innerText = QR Code Data: ${code.data};
-               } else {
-                    output.innerText = 'Scanning for QR Code...';
-               }
+      // If a QR code is found, display its data
+      if (code) {
+        output.innerText = `QR Code Data: ${code.data}`;
+      } else {
+        output.innerText = 'Scanning for QR Code...';
+      }
 
-               // Request the next animation frame to continue scanning
-               requestAnimationFrame(scanQRCode);
-          }
-     </script>
+      // Request the next animation frame to continue scanning
+      requestAnimationFrame(scanQRCode);
+    }
+  </script>
 </body>
-
 </html>
